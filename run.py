@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import signal
+import sys
 import time
 
 from omni.isaac.kit import SimulationApp
@@ -13,12 +14,12 @@ map_path = os.environ.get('BENCHBOT_MAP_PATH')
 robot_path = os.environ.get('BENCHBOT_ROBOT_PATH')
 start_pose = os.environ.get('BENCHBOT_START_POSE')
 
-done = False
 
-
-def sig_handler(_, __):
-    global done
-    done = True
+def finish(sim_context, kit):
+    print("BENCHBOT: Exit requested. Finishing ...")
+    sim_context.stop()
+    kit.close()
+    sys.exit()  # TODO figure out why this seg faults
 
 
 if __name__ == '__main__':
@@ -42,7 +43,6 @@ if __name__ == '__main__':
         quit()
 
     # Start the simulator
-    signal.signal(signal.SIGINT, sig_handler)
     k = SimulationApp({
         "renderer": "RayTracedLighting",
         "headless": False,
@@ -86,8 +86,6 @@ if __name__ == '__main__':
     sc = SimulationContext()
     sc.play()
     print("BENCHBOT: Running simulation ...")
-    while not done:
+    signal.signal(signal.SIGINT, lambda _, __: finish(sc, k))
+    while True:
         sc.step()
-    print("BENCHBOT: Exit requested. Finishing ...")
-    sc.stop()
-    k.close()
