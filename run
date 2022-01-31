@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+################################################################################
+########################### Configuration & helpers ############################
+################################################################################
+
+set -euo pipefail
+IFS=$'\n\t'
+abs_path=$(readlink -f $0)
+pushd $(dirname $abs_path) > /dev/null
+
+DEFAULT_POSE="1,0,0,0,0,0,0"
+
+usage_text="$(basename "$abs_path") -- BenchBot simulator wrapper for Omniverse-powered Isaac Sim
+
+USAGE:
+
+    Run the simulator:
+        $(basename "$abs_path") \
+          --map-path /path/to/map.usd \
+          --robot-path /path/to/robot.usd \
+          --start-pose 1,0,0,0,0,0,0
+        $(basename "$abs_path") -m /path/to/map.usd -r /path/to/robot.usd
+
+    Print this help information:
+        $(basename "$abs_path") [-h|--help]
+
+OPTION DETAILS:
+
+    -h, --help             
+            Show this help menu.
+
+    -m,--map-path
+            Path to the map USD file representing the environment. This flag is
+            required.
+
+    -o,--object-labels
+            Currently unimplemented, but will be added in the future. Will
+            throw an error if this argument is used.
+
+    -r,--robot-path
+            Path to the USD file used for the robot. This robot will be placed
+            at the specified start pose, in the map specified by the USD file
+            at map path. This flag is required.
+
+    -s,--start-pose
+            Start pose as a comma separated 7-tuple of the form:
+            
+                    quat_w,quat_x,quat_y,quat_z,pos_x,pos_y,pos_z
+
+            This flag is optional, with the following default used when it
+            isn't provided:
+
+                    $DEFAULT_POSE
+
+FURTHER DETAILS:
+    
+    Please contact the authors of BenchBot for support or to report bugs:
+        b.talbot@qut.edu.au
+    "
+
+################################################################################
+################################# Main script ##################################
+################################################################################
+
+# Safely parse options
+_args="help,map-path:,object-labels:,robot-path:,start-pose:"
+parse_out=$(getopt -o hm:o:r:s: --long $_args -n "$(basename "$abs_path")" \
+  -- "$@")
+if [ $? != 0 ]; then exit 1; fi
+eval set -- "$parse_out"
+map_path=
+object_labels=
+robot_path=
+start_pose="$DEFAULT_POSE"
+while true; do
+  case "$1" in
+    -h|--help)
+      echo "$usage_text"; exit 0 ;;
+    -m|--map-path)
+      map_path="$2"; shift 2 ;;
+    -o|--object-labels)
+      object_labels="$2"; shift 2 ;;
+    -r|--robot-path)
+      robot_path="$2"; shift 2 ;;
+    -s|--start-pose)
+      start_pose="$2"; shift 2 ;;
+    --)
+      shift ; break ;;
+    *)
+      echo "$(basename "$abs_path"): option '$1' is unknown"; shift ; exit 1 ;;
+  esac 
+done
+
+# Handle error conditions
+if [ -z "$map_path" ]; then
+  printf "ERROR: Path to map USD is required via --map-path option.\n"
+  exit 1
+fi
+if [ -z "$robot_path" ]; then
+  printf "ERROR: Path to robot USD is required via --robot-path option.\n"
+  exit 1
+fi
+if [ ! -z "$object_labels" ]; then
+  printf "ERROR: Object labels option is currently unsupported.\n"
+  exit 1
+fi
+
+# Run our simulator script through Isaac Sim's python.sh Python environment
+echo "$start_pose"
+echo "$map_path"
+echo "$robot_path"
+echo "$object_labels"
