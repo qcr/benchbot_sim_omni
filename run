@@ -7,7 +7,6 @@
 set -euo pipefail
 IFS=$'\n\t'
 abs_path=$(readlink -f $0)
-pushd $(dirname $abs_path) > /dev/null
 
 DEFAULT_POSE="1,0,0,0,0,0,0"
 
@@ -37,6 +36,11 @@ OPTION DETAILS:
     -o,--object-labels
             Currently unimplemented, but will be added in the future. Will
             throw an error if this argument is used.
+
+    -p,--python-sh-path
+            Path to the 'python.sh' environment script included with your Isaac
+            Sim installation. Will recursively search for the script in the
+            current directory if this flag is not provided.
 
     -r,--robot-path
             Path to the USD file used for the robot. This robot will be placed
@@ -71,6 +75,7 @@ if [ $? != 0 ]; then exit 1; fi
 eval set -- "$parse_out"
 map_path=
 object_labels=
+python_sh_path=
 robot_path=
 start_pose="$DEFAULT_POSE"
 while true; do
@@ -81,6 +86,8 @@ while true; do
       map_path="$2"; shift 2 ;;
     -o|--object-labels)
       object_labels="$2"; shift 2 ;;
+    -p|--python-sh-path)
+      python_sh_path="$2"; shift 2 ;;
     -r|--robot-path)
       robot_path="$2"; shift 2 ;;
     -s|--start-pose)
@@ -102,12 +109,28 @@ if [ -z "$robot_path" ]; then
   exit 1
 fi
 if [ ! -z "$object_labels" ]; then
+  # TODO handle object labels
   printf "ERROR: Object labels option is currently unsupported.\n"
   exit 1
 fi
 
+# Derive any missing values
+if [ -z "$python_sh_path" ]; then
+  printf "No python_sh_path provided. Guessing ... \n"
+  python_sh_path="$(find . -name 'python.sh' 2>/dev/null | head -n 1 | xargs \
+    || true)"
+  if [ -z "$python_sh_path" ]; then
+    printf "ERROR: Failed to auto-find python.sh file. Exiting.\n"
+    exit 1
+  fi
+  printf "Guessed: $python_sh_path\n"
+fi
+
 # Run our simulator script through Isaac Sim's python.sh Python environment
-echo "$start_pose"
-echo "$map_path"
-echo "$robot_path"
-echo "$object_labels"
+# NOTE: we have to use environment variables due to bug in how python.sh
+# handles arguments
+# TODO support object labels argument
+BENCHBOT_MAP_PATH="$map_path" \
+  BENCHBOT_ROBOT_PATH="$robot_path" \
+  BENCHBOT_START_POSE="$start_pose" \
+  "$python_sh_path" 
