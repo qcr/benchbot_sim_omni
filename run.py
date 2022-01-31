@@ -75,17 +75,19 @@ if __name__ == '__main__':
 
     # Wait until we find a ROS master
     # TODO dynamically incorporate address to look for master...
-    print("Waiting for ROS master on TODO ...")
+    print("BENCHBOT: Waiting for ROS master on TODO ...")
     chk = False
     while not chk:
         time.sleep(1)
         _, chk = execute("RosBridgeRosMasterCheck")
-    print("Found ROS master.")
+    print("BENCHBOT: Found ROS master.")
 
     # Start the simulation, quitting on SIGINT
     sc = SimulationContext()
     sc.play()
+    print("BENCHBOT: Running simulation ...")
     while not done:
         sc.step()
+    print("BENCHBOT: Exit requested. Finishing ...")
     sc.stop()
     k.close()
