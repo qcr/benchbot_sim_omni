@@ -133,4 +133,4 @@ fi
 BENCHBOT_MAP_PATH="$map_path" \
   BENCHBOT_ROBOT_PATH="$robot_path" \
   BENCHBOT_START_POSE="$start_pose" \
-  "$python_sh_path" 
+  "$python_sh_path" "$(dirname "$abs_path")/run.py"
