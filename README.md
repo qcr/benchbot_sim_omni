@@ -4,8 +4,8 @@
 
 [![BenchBot project](https://img.shields.io/badge/collection-BenchBot-%231a2857)](http://benchbot.org)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
-![Primary language](https://img.shields.io/github/languages/top/qcr/benchbot_simulator)
-[![License](https://img.shields.io/github/license/qcr/benchbot_simulator)](./LICENSE.txt)
+![Primary language](https://img.shields.io/github/languages/top/qcr/benchbot_sim_omni)
+[![License](https://img.shields.io/github/license/qcr/benchbot_sim_omni)](./LICENSE.txt)
 
 TODO summary image
 
