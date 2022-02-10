@@ -10,11 +10,11 @@ ROBOT_NAME = 'robot'
 ROBOT_PRIM_PATH = '/%s' % ROBOT_NAME
 ROBOT_COMPONENTS = {
     'clock': '/ROS_Clock',
-    'diff_base': '/%s/ROS_DifferentialBase' % ROBOT_PRIM_PATH,
-    'lidar': '/%s/ROS_Lidar' % ROBOT_PRIM_PATH,
-    'rgbd': '/%s/ROS_Camera_Stereo_Left' % ROBOT_PRIM_PATH,
-    'tf_sensors': '/%s/ROS_Carter_Sensors_Broadcaster' % ROBOT_PRIM_PATH,
-    'tf': '/%s/ROS_Carter_Broadcaster' % ROBOT_PRIM_PATH
+    'diff_base': '%s/ROS_DifferentialBase' % ROBOT_PRIM_PATH,
+    'lidar': '%s/ROS_Lidar' % ROBOT_PRIM_PATH,
+    'rgbd': '%s/ROS_Camera_Stereo_Left' % ROBOT_PRIM_PATH,
+    'tf_sensors': '%s/ROS_Carter_Sensors_Broadcaster' % ROBOT_PRIM_PATH,
+    'tf': '%s/ROS_Carter_Broadcaster' % ROBOT_PRIM_PATH
 }
 UPDATE_DELAY_SECS = 3.0
 
@@ -31,6 +31,7 @@ def finish(sim_context, kit):
 
 
 def disable_component(prop_path):
+    print("DISABLING '%s.enabled'" % prop_path)
     execute("ChangeProperty",
             prop_path=Sdf.Path("%s.enabled" % prop_path),
             value=False,
