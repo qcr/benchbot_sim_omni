@@ -117,8 +117,9 @@ fi
 # Derive any missing values
 if [ -z "$python_sh_path" ]; then
   printf "No python_sh_path provided. Guessing ... \n"
-  python_sh_path="$(find . -name 'python.sh' 2>/dev/null | head -n 1 | xargs \
-    || true)"
+  python_sh_path="$(find . -name 'python.sh' 2>/dev/null | \
+    awk '{ print length, $0 }' | sort -n | cut -d' ' -f2 | \
+    head -n 1 | xargs || true)"
   if [ -z "$python_sh_path" ]; then
     printf "ERROR: Failed to auto-find python.sh file. Exiting.\n"
     exit 1
