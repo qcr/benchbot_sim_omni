@@ -8,6 +8,14 @@ from omni.isaac.kit import SimulationApp
 
 ROBOT_NAME = 'robot'
 ROBOT_PRIM_PATH = '/%s' % ROBOT_NAME
+ROBOT_COMPONENTS = {
+    'clock': '/ROS_Clock',
+    'diff_base': '/%s/ROS_DifferentialBase' % ROBOT_PRIM_PATH,
+    'lidar': '/%s/ROS_Lidar' % ROBOT_PRIM_PATH,
+    'rgbd': '/%s/ROS_Camera_Stereo_Left' % ROBOT_PRIM_PATH,
+    'tf_sensors': '/%s/ROS_Carter_Sensors_Broadcaster' % ROBOT_PRIM_PATH,
+    'tf': '/%s/ROS_Carter_Broadcaster' % ROBOT_PRIM_PATH
+}
 UPDATE_DELAY_SECS = 3.0
 
 map_path = os.environ.get('BENCHBOT_MAP_PATH')
@@ -20,6 +28,17 @@ def finish(sim_context, kit):
     sim_context.stop()
     kit.close()
     sys.exit()  # TODO figure out why this seg faults
+
+
+def disable_component(prop_path):
+    execute("ChangeProperty",
+            prop_path=Sdf.Path("%s.enabled" % prop_path),
+            value=False,
+            prev=None)
+
+
+def tick_component(prop_path):
+    execute("RosBridgeTickComponent", path=prop_path)
 
 
 if __name__ == '__main__':
@@ -56,6 +75,7 @@ if __name__ == '__main__':
     from omni.isaac.core.utils.stage import add_reference_to_stage
     from omni.kit.commands import execute
     from omni.kit.viewport import get_default_viewport_window
+    from pxr import Sdf
     enable_extension("omni.isaac.ros_bridge")
 
     # Configure the interface
@@ -67,6 +87,11 @@ if __name__ == '__main__':
     r = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
     r.set_world_pose(position=start_pose[4::] * 100,
                      orientation=start_pose[:4])
+
+    # Disable auto-publishing of all robot components (we'll manually publish
+    # at varying frequencies instead)
+    for p in ROBOT_COMPONENTS.values():
+        disable_component(p)
 
     # Random number of updates for UI to catch up with things???
     a = time.time()
