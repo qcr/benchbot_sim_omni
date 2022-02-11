@@ -113,5 +113,22 @@ if __name__ == '__main__':
     sc.play()
     print("BENCHBOT: Running simulation ...")
     signal.signal(signal.SIGINT, lambda _, __: finish(sc, k))
+    i = 0
     while True:
         sc.step()
+
+        # Tick at 60Hz
+        tick_component(ROBOT_COMPONENTS['clock'])
+
+        # Tick at 30Hz
+        if i % 2 == 0:
+            tick_component(ROBOT_COMPONENTS['diff_base'])
+            tick_component(ROBOT_COMPONENTS['lidar'])
+            tick_component(ROBOT_COMPONENTS['tf'])
+            tick_component(ROBOT_COMPONENTS['tf_sensors'])
+
+        # Tick at 10Hz
+        if i % 6 == 0:
+            tick_component(ROBOT_COMPONENTS['rgbd'])
+
+        i += 1
