@@ -57,6 +57,9 @@ OPTION DETAILS:
 
                     $DEFAULT_POSE
 
+            Note: starting or closing square brackets are also supported, they
+            will simply be stripped from the input.
+
 FURTHER DETAILS:
     
     Please contact the authors of BenchBot for support or to report bugs:
@@ -113,6 +116,9 @@ if [ ! -z "$object_labels" ]; then
   printf "ERROR: Object labels option is currently unsupported.\n"
   exit 1
 fi
+
+# Make available corrections to input arguments
+start_pose="$(echo "$start_pose" | sed 's/ //g; s/^\[//; s/\]$//')"
 
 # Derive any missing values
 if [ -z "$python_sh_path" ]; then
