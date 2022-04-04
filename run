@@ -43,6 +43,9 @@ INTERACTING WITH THE DAEMON:
 
     Following routes are supported:
 
+    /
+            Returns a greeting message
+
     /open_environment
             Opens a new environment, with USD path specified via 'environment'
             data field
@@ -52,6 +55,12 @@ INTERACTING WITH THE DAEMON:
             the 'pose' field. Format for pose is:
 
                     quat_w,quat_x,quat_y,quat_z,pos_x,pos_y,pos_z
+
+    /start
+            Starts a simulator instance (happens by default when first opened)
+
+    /stop
+            Stops a currently running simulator instance if it exists
 
     /restart
             Restarts the entire simulator (generally not needed)
