@@ -110,7 +110,16 @@ class SimulatorDaemon:
         def __stop():
             stop_simulation()
 
+        # Start long-running server
         server = pywsgi.WSGIServer(self.address, f)
+        evt = event.Event()
+        for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
+            signal.signal(s, lambda n , frame: evt.set())
+        while not evt.is_set():
+            self.tick_simulation()
+
+        # Cleanup
+        stop_instance()
 
     def start_instance(self):
         if not self.inst is None:
@@ -169,6 +178,9 @@ class SimulatorDaemon:
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
     def tick_simulation(self):
+        if self.inst is None or self.sim is None:
+            return
+
         sc.step()
 
         # Tick at 60Hz
@@ -190,6 +202,7 @@ class SimulatorDaemon:
 
 if __name__ == '__main__':
     sd = SimulatorDaemon(port=os.environ.get('PORT'))
+    sd.run()
 
 
 def finish(sim_context, kit):
