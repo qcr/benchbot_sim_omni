@@ -62,7 +62,9 @@ class SimulatorDaemon:
 
         @f.route('/open_environment', methods=['POST'])
         def __open_env():
-            # TODO process JSON
+            r = flask.request.json
+            if 'environment' in r:
+                self.map_usd = r['environment']
             if self.inst is None:
                 print("No simulator running. Stored USD, but not opening.")
                 return
@@ -70,7 +72,11 @@ class SimulatorDaemon:
 
         @f.route('/place_robot', methods=['POST'])
         def __place_robot():
-            # TODO process JSON
+            r = flask.request.json
+            if 'robot' in r:
+                self.robot_usd = r['robot']
+            if 'start_pose' in r
+                self.start_pose = r['start_pose']
             if self.inst is None:
                 print(
                     "No simulator running. Stored USD & pose, but not opening."
