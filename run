@@ -8,7 +8,7 @@ set -euo pipefail
 IFS=$'\n\t'
 abs_path=$(readlink -f $0)
 
-DEFAULT_POSE="1,0,0,0,0,0,0"
+DEFAULT_PORT=10001
 
 usage_text="$(basename "$abs_path") -- BenchBot simulator daemon for Omniverse-powered Isaac Sim
 
@@ -27,13 +27,14 @@ OPTION DETAILS:
     -h, --help             
             Show this help menu.
 
+    -P,--port
+            Port the daemon will bind to. Default port of "$DEFAULT_PORT" will
+            be used if not provided.
+
     -p,--python-sh-path
             Path to the 'python.sh' environment script included with your Isaac
             Sim installation. Will recursively search for the script in the
             current directory if this flag is not provided.
-
-    -P,--port
-            Port the daemon will bind to.
 
 
 INTERACTING WITH THE DAEMON:
@@ -66,30 +67,21 @@ FURTHER DETAILS:
 ################################################################################
 
 # Safely parse options
-_args="help,map-path:,object-labels:,robot-path:,start-pose:"
-parse_out=$(getopt -o hm:o:r:s: --long $_args -n "$(basename "$abs_path")" \
+_args="help,port:,python-sh-path:"
+parse_out=$(getopt -o hP:p: --long $_args -n "$(basename "$abs_path")" \
   -- "$@")
 if [ $? != 0 ]; then exit 1; fi
 eval set -- "$parse_out"
-map_path=
-object_labels=
 python_sh_path=
-robot_path=
-start_pose="$DEFAULT_POSE"
+port=
 while true; do
   case "$1" in
     -h|--help)
       echo "$usage_text"; exit 0 ;;
-    -m|--map-path)
-      map_path="$2"; shift 2 ;;
-    -o|--object-labels)
-      object_labels="$2"; shift 2 ;;
+    -P|--port)
+      port="$2"; shift 2 ;;
     -p|--python-sh-path)
       python_sh_path="$2"; shift 2 ;;
-    -r|--robot-path)
-      robot_path="$2"; shift 2 ;;
-    -s|--start-pose)
-      start_pose="$2"; shift 2 ;;
     --)
       shift ; break ;;
     *)
@@ -97,25 +89,8 @@ while true; do
   esac 
 done
 
-# Handle error conditions
-if [ -z "$map_path" ]; then
-  printf "ERROR: Path to map USD is required via --map-path option.\n"
-  exit 1
-fi
-if [ -z "$robot_path" ]; then
-  printf "ERROR: Path to robot USD is required via --robot-path option.\n"
-  exit 1
-fi
-if [ ! -z "$object_labels" ]; then
-  # TODO handle object labels
-  printf "ERROR: Object labels option is currently unsupported.\n"
-  exit 1
-fi
-
-# Make available corrections to input arguments
-start_pose="$(echo "$start_pose" | sed 's/ //g; s/^\[//; s/\]$//')"
-
 # Derive any missing values
+if [ -z "$port" ]; then port=DEFAULT_PORT; fi
 if [ -z "$python_sh_path" ]; then
   printf "No python_sh_path provided. Guessing ... \n"
   python_sh_path="$(find . -name 'python.sh' 2>/dev/null | \
@@ -131,8 +106,4 @@ fi
 # Run our simulator script through Isaac Sim's python.sh Python environment
 # NOTE: we have to use environment variables due to bug in how python.sh
 # handles arguments
-# TODO support object labels argument
-BENCHBOT_MAP_PATH="$map_path" \
-  BENCHBOT_ROBOT_PATH="$robot_path" \
-  BENCHBOT_START_POSE="$start_pose" \
-  "$python_sh_path" "$(dirname "$abs_path")/run.py"
+PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py"
