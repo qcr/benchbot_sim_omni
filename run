@@ -49,6 +49,7 @@ INTERACTING WITH THE DAEMON:
     /open_environment
             Opens a new environment, with USD path specified via 'environment'
             data field
+
     /place_robot
             Places a robot at a specified pose. Robot USD is specified via
             'robot' data field, and start pose via a comma-separated 7-tuple in
