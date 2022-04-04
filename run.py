@@ -168,6 +168,25 @@ class SimulatorDaemon:
         self.sim.stop()
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
+    def tick_simulation(self):
+        sc.step()
+
+        # Tick at 60Hz
+        tick_component(ROBOT_COMPONENTS['clock'])
+
+        # Tick at 30Hz
+        if self.sim_i % 2 == 0:
+            tick_component(ROBOT_COMPONENTS['diff_base'])
+            tick_component(ROBOT_COMPONENTS['lidar'])
+            tick_component(ROBOT_COMPONENTS['tf'])
+            tick_component(ROBOT_COMPONENTS['tf_sensors'])
+
+        # Tick at 10Hz
+        if self.sim_i % 6 == 0:
+            tick_component(ROBOT_COMPONENTS['rgbd'])
+
+        self.sim_i += 1
+
 
 if __name__ == '__main__':
     sd = SimulatorDaemon(port=os.environ.get('PORT'))
