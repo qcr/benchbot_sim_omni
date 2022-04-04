@@ -10,16 +10,14 @@ abs_path=$(readlink -f $0)
 
 DEFAULT_POSE="1,0,0,0,0,0,0"
 
-usage_text="$(basename "$abs_path") -- BenchBot simulator wrapper for Omniverse-powered Isaac Sim
+usage_text="$(basename "$abs_path") -- BenchBot simulator daemon for Omniverse-powered Isaac Sim
 
 USAGE:
 
-    Run the simulator:
-        $(basename "$abs_path") \
-          --map-path /path/to/map.usd \
-          --robot-path /path/to/robot.usd \
-          --start-pose 1,0,0,0,0,0,0
-        $(basename "$abs_path") -m /path/to/map.usd -r /path/to/robot.usd
+    Start the daemon:
+        $(basename "$abs_path")
+        $(basename "$abs_path") -p /path/to/python.sh -P 8080
+
 
     Print this help information:
         $(basename "$abs_path") [-h|--help]
@@ -29,36 +27,33 @@ OPTION DETAILS:
     -h, --help             
             Show this help menu.
 
-    -m,--map-path
-            Path to the map USD file representing the environment. This flag is
-            required.
-
-    -o,--object-labels
-            Currently unimplemented, but will be added in the future. Will
-            throw an error if this argument is used.
-
     -p,--python-sh-path
             Path to the 'python.sh' environment script included with your Isaac
             Sim installation. Will recursively search for the script in the
             current directory if this flag is not provided.
 
-    -r,--robot-path
-            Path to the USD file used for the robot. This robot will be placed
-            at the specified start pose, in the map specified by the USD file
-            at map path. This flag is required.
+    -P,--port
+            Port the daemon will bind to.
 
-    -s,--start-pose
-            Start pose as a comma separated 7-tuple of the form:
-            
+
+INTERACTING WITH THE DAEMON:
+
+    The daemon responds to HTTP requests. 
+
+    Following routes are supported:
+
+    /open_environment
+            Opens a new environment, with USD path specified via 'environment'
+            data field
+    /place_robot
+            Places a robot at a specified pose. Robot USD is specified via
+            'robot' data field, and start pose via a comma-separated 7-tuple in
+            the 'pose' field. Format for pose is:
+
                     quat_w,quat_x,quat_y,quat_z,pos_x,pos_y,pos_z
 
-            This flag is optional, with the following default used when it
-            isn't provided:
-
-                    $DEFAULT_POSE
-
-            Note: starting or closing square brackets are also supported, they
-            will simply be stripped from the input.
+    /restart
+            Restarts the entire simulator (generally not needed)
 
 FURTHER DETAILS:
     
