@@ -11,6 +11,7 @@ from omni.isaac.kit import SimulationApp
 
 DEFAULT_POSE = [1, 0, 0, 0, 0, 0, 0]
 
+MAP_PRIM_PATH = '/env'
 ROBOT_NAME = 'robot'
 ROBOT_PRIM_PATH = '/%s' % ROBOT_NAME
 ROBOT_COMPONENTS = {
@@ -53,8 +54,7 @@ class SimulatorDaemon:
         # Stop simulation if running
         self.stop_simulation()
 
-        # TODO figure out API calls for this...
-        pass
+        add_reference_to_stage(usd_path=self.map_usd, prim_path=MAP_PRIM_PATH)
 
         # Attempt to start the simulation
         self.start_simulation()
@@ -65,7 +65,7 @@ class SimulatorDaemon:
 
         # Add robot to the environment at the requested pose
         p = DEFAULT_POSE if self.start_pose is None else self.start_pose
-        add_reference_to_stage(usd_path=self.robot_path,
+        add_reference_to_stage(usd_path=self.robot_usd,
                                prim_path=ROBOT_PRIM_PATH)
         r = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
         r.set_world_pose(position=p[4::] * 100, orientation=p[:4])
