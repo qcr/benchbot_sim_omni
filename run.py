@@ -27,7 +27,7 @@ UPDATE_DELAY_SECS = 3.0
 class SimulatorDaemon:
 
     def __init__(self, port):
-        self.address = 'localhost:%d' % port
+        self.address = 'localhost:%s' % port
 
         self.inst = None
         self.sim = None
@@ -88,7 +88,7 @@ class SimulatorDaemon:
             r = flask.request.json
             if 'robot' in r:
                 self.robot_usd = r['robot']
-            if 'start_pose' in r
+            if 'start_pose' in r:
                 self.start_pose = r['start_pose']
             if self.inst is None:
                 print(
@@ -114,7 +114,7 @@ class SimulatorDaemon:
         server = pywsgi.WSGIServer(self.address, f)
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
-            signal.signal(s, lambda n , frame: evt.set())
+            signal.signal(s, lambda n, frame: evt.set())
         while not evt.is_set():
             self.tick_simulation()
 
