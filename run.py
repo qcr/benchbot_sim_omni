@@ -151,7 +151,7 @@ class SimulatorDaemon:
         server.start()
         while not evt.is_set():
             evt.wait(0.001)
-            self.tick_simulation()
+            self.tick_simulator()
 
         # Cleanup
         stop_instance()
@@ -212,8 +212,11 @@ class SimulatorDaemon:
         self.sim.stop()
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
-    def tick_simulation(self):
-        if self.inst is None or self.sim is None:
+    def tick_simulator(self):
+        if self.inst is None:
+            return
+        if self.sim is None:
+            self.inst.update()
             return
 
         sc.step()
