@@ -127,7 +127,9 @@ class SimulatorDaemon:
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
             signal.signal(s, lambda n, frame: evt.set())
+        server.start()
         while not evt.is_set():
+            evt.wait(0.001)
             self.tick_simulation()
 
         # Cleanup
