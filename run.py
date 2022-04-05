@@ -92,7 +92,7 @@ class SimulatorDaemon:
                 self.map_usd = r['environment']
             if self.inst is None:
                 print("No simulator running. Stored USD, but not opening.")
-                return
+                return flask.jsonify({})
             self.open_usd()
             return flask.jsonify({})
 
@@ -107,7 +107,7 @@ class SimulatorDaemon:
                 print(
                     "No simulator running. Stored USD & pose, but not opening."
                 )
-                return
+                return flask.jsonify({})
             self.place_robot()
             return flask.jsonify({})
 
@@ -154,7 +154,7 @@ class SimulatorDaemon:
             self.tick_simulator()
 
         # Cleanup
-        stop_instance()
+        self.stop_instance()
 
     def start_instance(self):
         if not self.inst is None:
@@ -207,8 +207,10 @@ class SimulatorDaemon:
     def stop_simulation(self):
         if self.sim is None:
             print("Skipping. No running simulation to stop")
+            return
         if self.inst is None:
             print("Skipping. No running simulator found.")
+            return
         self.sim.stop()
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
