@@ -57,7 +57,7 @@ class SimulatorDaemon:
         pass
 
         # Attempt to start the simulation
-        start_simulation()
+        self.start_simulation()
 
     def place_robot(self):
         # Stop simulation if running
@@ -76,7 +76,7 @@ class SimulatorDaemon:
             disable_component(p)
 
         # Attempt to start the simulation
-        start_simulation()
+        self.start_simulation()
 
     def run(self):
         f = flask.Flask(__name__)
@@ -94,6 +94,7 @@ class SimulatorDaemon:
                 print("No simulator running. Stored USD, but not opening.")
                 return
             self.open_usd()
+            return flask.jsonify({})
 
         @f.route('/place_robot', methods=['POST'])
         def __place_robot():
@@ -108,19 +109,39 @@ class SimulatorDaemon:
                 )
                 return
             self.place_robot()
+            return flask.jsonify({})
 
         @f.route('/restart', methods=['POST'])
-        def __restart():
-            stop_simulation()
-            start_simulation()
+        def __restart_inst():
+            self.stop_instance()
+            self.start_instance()
+            return flask.jsonify({})
+
+        @f.route('/restart_sim', methods=['POST'])
+        def __restart_sim():
+            self.stop_simulation()
+            self.start_simulation()
+            return flask.jsonify({})
 
         @f.route('/start', methods=['POST'])
-        def __start():
-            start_simulation()
+        def __start_inst():
+            self.start_instance()
+            return flask.jsonify({})
+
+        @f.route('/start_sim', methods=['POST'])
+        def __start_sim():
+            self.start_simulation()
+            return flask.jsonify({})
 
         @f.route('/stop', methods=['POST'])
-        def __stop():
-            stop_simulation()
+        def __stop_inst():
+            self.stop_instance()
+            return flask.jsonify({})
+
+        @f.route('/stop_sim', methods=['POST'])
+        def __stop_sim():
+            self.stop_simulation()
+            return flask.jsonify({})
 
         # Start long-running server
         server = pywsgi.WSGIServer(self.address, f)
@@ -163,7 +184,7 @@ class SimulatorDaemon:
             self.place_robot()
 
         # Attempt to start the simulation
-        start_simulation()
+        self.start_simulation()
 
     def start_simulation(self):
         if self.sim is not None:
