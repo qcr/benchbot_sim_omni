@@ -51,15 +51,23 @@ class SimulatorDaemon:
         self.start_pose = None
 
     def open_usd(self):
+        from omni.isaac.core.utils.stage import (add_reference_to_stage,
+                                                 clear_stage, is_stage_loading,
+                                                 update_stage)
+
         # Stop simulation if running
         self.stop_simulation()
 
+        clear_stage()
         add_reference_to_stage(usd_path=self.map_usd, prim_path=MAP_PRIM_PATH)
+        update_stage()
 
         # Attempt to start the simulation
         self.start_simulation()
 
     def place_robot(self):
+        from omni.isaac.core.utils.stage import add_reference_to_stage
+
         # Stop simulation if running
         self.stop_simulation()
 
@@ -173,7 +181,6 @@ class SimulatorDaemon:
         from omni.isaac.core import SimulationContext
         from omni.isaac.core.robots import Robot
         from omni.isaac.core.utils.extensions import enable_extension
-        from omni.isaac.core.utils.stage import add_reference_to_stage
         from omni.kit.commands import execute
         from omni.kit.viewport import get_default_viewport_window
         from pxr import Sdf
