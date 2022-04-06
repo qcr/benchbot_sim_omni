@@ -116,4 +116,11 @@ fi
 # Run our simulator script through Isaac Sim's python.sh Python environment
 # NOTE: we have to use environment variables due to bug in how python.sh
 # handles arguments
-PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py"
+_die() {
+  # Need to bypass python.sh as it doesn't pass signals onto our Python script...
+  pkill -TERM --parent "$child" 
+}
+trap _die SIGTERM SIGINT SIGQUIT
+PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py" &
+child=$!
+wait "$child"
