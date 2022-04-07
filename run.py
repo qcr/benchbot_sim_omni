@@ -5,6 +5,7 @@ import signal
 import sys
 import time
 
+from builtins import print as bprint
 from gevent import event, pywsgi, signal
 
 from omni.isaac.kit import SimulationApp
@@ -31,6 +32,10 @@ def disable_component(prop_path):
             prop_path=Sdf.Path("%s.enabled" % prop_path),
             value=False,
             prev=None)
+
+
+def print(*args, **kwargs):
+    bprint(*args, **kwargs, flush=True)
 
 
 def tick_component(prop_path):
