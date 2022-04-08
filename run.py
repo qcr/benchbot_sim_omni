@@ -62,6 +62,14 @@ class SimulatorDaemon:
         from omni.isaac.core.utils.stage import (add_reference_to_stage,
                                                  clear_stage, is_stage_loading,
                                                  update_stage)
+        # Bail early if we can't act
+        if self.inst is None:
+            print("No simulator running. "
+                  "Stored environment USD, but not opening.")
+            return
+        if self.map_usd is None:
+            print("No environment USD selected. Returning.")
+            return
 
         # Stop simulation if running
         self.stop_simulation()
@@ -71,14 +79,23 @@ class SimulatorDaemon:
         add_reference_to_stage(usd_path=self.map_usd, prim_path=MAP_PRIM_PATH)
         update_stage()
 
-        # Attempt to start the simulation
-        self.start_simulation()
+        # Attempt to replace the robot
+        self.place_robot()
 
     def place_robot(self):
         from omni.isaac.core.robots import Robot
         from omni.isaac.core.utils.stage import (add_reference_to_stage,
                                                  clear_stage, is_stage_loading,
                                                  update_stage)
+
+        # Bail early if we can't act
+        if self.inst is None:
+            print("No simulator running. "
+                  "Stored robot USD & pose, but not opening.")
+            return
+        if self.robot_usd is None:
+            print("No robot USD selected. Returning.")
+            return
 
         # Stop simulation if running
         self.stop_simulation()
@@ -111,10 +128,6 @@ class SimulatorDaemon:
             r = flask.request.json
             if 'environment' in r:
                 self.map_usd = r['environment']
-            if self.inst is None:
-                print("No simulator running. "
-                      "Stored environment USD, but not opening.")
-                return flask.jsonify({})
             self.open_usd()
             return flask.jsonify({})
 
@@ -127,10 +140,6 @@ class SimulatorDaemon:
                 # Hard assumption this is a CSV string
                 self.start_pose = np.array(
                     [float(x.strip()) for x in r['start_pose'].split(',')])
-            if self.inst is None:
-                print("No simulator running. "
-                      "Stored robot USD & pose, but not opening.")
-                return flask.jsonify({})
             self.place_robot()
             return flask.jsonify({})
 
@@ -197,12 +206,9 @@ class SimulatorDaemon:
         from omni.kit.viewport import get_default_viewport_window
         enable_extension("omni.isaac.ros_bridge")
 
-        # Insert the robot if it is set
-        if self.robot_usd is not None:
+        # Attempt to place the robot if we had a map
+        if env:
             self.place_robot()
-
-        # Attempt to start the simulation
-        self.start_simulation()
 
     def start_simulation(self):
         from omni.isaac.core import SimulationContext
