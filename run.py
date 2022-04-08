@@ -112,7 +112,8 @@ class SimulatorDaemon:
             if 'environment' in r:
                 self.map_usd = r['environment']
             if self.inst is None:
-                print("No simulator running. Stored USD, but not opening.")
+                print("No simulator running. "
+                      "Stored environment USD, but not opening.")
                 return flask.jsonify({})
             self.open_usd()
             return flask.jsonify({})
@@ -123,11 +124,11 @@ class SimulatorDaemon:
             if 'robot' in r:
                 self.robot_usd = r['robot']
             if 'start_pose' in r:
+                # TODO handle conversion of this!
                 self.start_pose = r['start_pose']
             if self.inst is None:
-                print(
-                    "No simulator running. Stored USD & pose, but not opening."
-                )
+                print("No simulator running. "
+                      "Stored robot USD & pose, but not opening.")
                 return flask.jsonify({})
             self.place_robot()
             return flask.jsonify({})
