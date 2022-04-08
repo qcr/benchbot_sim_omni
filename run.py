@@ -27,6 +27,8 @@ UPDATE_DELAY_SECS = 3.0
 
 
 def disable_component(prop_path):
+    from omni.kit.commands import execute
+    from pxr import Sdf
     print("DISABLING '%s.enabled'" % prop_path)
     execute("ChangeProperty",
             prop_path=Sdf.Path("%s.enabled" % prop_path),
@@ -39,6 +41,7 @@ def print(*args, **kwargs):
 
 
 def tick_component(prop_path):
+    from omni.kit.commands import execute
     execute("RosBridgeTickComponent", path=prop_path)
 
 
@@ -188,12 +191,8 @@ class SimulatorDaemon:
         })
 
         # Import all required modules, and configure application
-        from omni.isaac.core import SimulationContext
-        from omni.isaac.core.robots import Robot
         from omni.isaac.core.utils.extensions import enable_extension
-        from omni.kit.commands import execute
         from omni.kit.viewport import get_default_viewport_window
-        from pxr import Sdf
         enable_extension("omni.isaac.ros_bridge")
 
         # Insert the robot if it is set
@@ -204,6 +203,8 @@ class SimulatorDaemon:
         self.start_simulation()
 
     def start_simulation(self):
+        from omni.isaac.core import SimulationContext
+
         if self.sim is not None:
             self.stop_simulation()
         if self.inst is None or self.map_usd is None or self.robot_usd is None:
@@ -238,7 +239,7 @@ class SimulatorDaemon:
             self.inst.update()
             return
 
-        sc.step()
+        self.sim.step()
 
         # Tick at 60Hz
         tick_component(ROBOT_COMPONENTS['clock'])
