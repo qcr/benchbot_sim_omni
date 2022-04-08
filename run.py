@@ -10,7 +10,7 @@ from gevent import event, pywsgi, signal
 
 from omni.isaac.kit import SimulationApp
 
-DEFAULT_POSE = [1, 0, 0, 0, 0, 0, 0]
+DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
 MAP_PRIM_PATH = '/env'
 ROBOT_NAME = 'robot'
