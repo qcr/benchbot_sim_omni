@@ -7,8 +7,12 @@ import time
 
 from builtins import print as bprint
 from gevent import event, pywsgi, signal
+from spatialmath import SE3, UnitQuaternion
 
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
+
+DIRTY_EPSILON_DIST = 0.5
+DIRTY_EPSILON_YAW = 2
 
 MAP_PRIM_PATH = '/env'
 ROBOT_NAME = 'robot'
@@ -22,6 +26,10 @@ ROBOT_COMPONENTS = {
     'tf': '%s/ROS_Carter_Broadcaster' % ROBOT_PRIM_PATH
 }
 UPDATE_DELAY_SECS = 3.0
+
+
+def __to_SE3(pose):
+    return SE3(pose[4::]) * UnitQuaternion(pose[0], pose[1:4]).SE3()
 
 
 def disable_component(prop_path):
@@ -62,7 +70,11 @@ class SimulatorDaemon:
         self._robot = None
 
     def check_dirty(self):
-        return False
+        delta = (
+            __to_SE3(self.start_pose) *
+            __to_SE3(np.concatenate(self._robot.get_world_pose()[::-1])).inv())
+        return (np.linalg.norm(delta.t) > DIRTY_EPSILON_DIST or
+                np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
     def check_collided(self):
         return False
