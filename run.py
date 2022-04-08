@@ -7,12 +7,14 @@ import time
 
 from builtins import print as bprint
 from gevent import event, pywsgi, signal
+from pathlib import Path
 from spatialmath import SE3, UnitQuaternion
 
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
 DIRTY_EPSILON_DIST = 0.5
 DIRTY_EPSILON_YAW = 2
+DIRTY_FILE = '/tmp/benchbot_dirty'
 
 MAP_PRIM_PATH = '/env'
 ROBOT_NAME = 'robot'
@@ -80,7 +82,6 @@ class SimulatorDaemon:
         delta = (
             _to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]) *
             _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)).inv())
-        print(delta)
         return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
@@ -300,6 +301,8 @@ class SimulatorDaemon:
             tick_component(ROBOT_COMPONENTS['rgbd'])
             if not self.sim_dirty:
                 self.sim_dirty = self.check_dirty()
+                if self.sim_dirty:
+                    Path(DIRTY_FILE).touch()
 
         # Tick at 1Hz
         if self.sim_i % 60 == 0:
