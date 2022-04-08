@@ -56,6 +56,8 @@ class SimulatorDaemon:
         self.robot_usd = None
         self.start_pose = None
 
+        self._robot = None
+
     def open_usd(self):
         # Bail early if we can't act
         if self.inst is None:
@@ -108,8 +110,8 @@ class SimulatorDaemon:
         p = DEFAULT_POSE if self.start_pose is None else self.start_pose
         add_reference_to_stage(usd_path=self.robot_usd,
                                prim_path=ROBOT_PRIM_PATH)
-        r = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
-        r.set_world_pose(position=p[4::] * 100, orientation=p[:4])
+        self._robot = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
+        self._robot.set_world_pose(position=p[4::] * 100, orientation=p[:4])
         update_stage()
 
         # Disable auto-publishing of all robot components (we'll manually
@@ -258,6 +260,8 @@ class SimulatorDaemon:
         # Tick at 10Hz
         if self.sim_i % 6 == 0:
             tick_component(ROBOT_COMPONENTS['rgbd'])
+            print("POSE:")
+            print(self._robot.get_world_pose())
 
         self.sim_i += 1
 
