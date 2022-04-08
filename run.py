@@ -74,6 +74,10 @@ class SimulatorDaemon:
         self.robot_usd = None
         self.start_pose = None
 
+        self._map_usd = None
+        self._robot_usd = None
+        self._start_pose = None
+
         self._dc = None
         self._robot = None
         self._robot_dc = None
@@ -108,9 +112,14 @@ class SimulatorDaemon:
         self.stop_simulation()
 
         # Update the map
-        clear_stage()
-        add_reference_to_stage(usd_path=self.map_usd, prim_path=MAP_PRIM_PATH)
-        update_stage()
+        if self.map_usd != self._map_usd:
+            clear_stage()
+            add_reference_to_stage(usd_path=self.map_usd,
+                                   prim_path=MAP_PRIM_PATH)
+            update_stage()
+            self._map_usd = self.map_usd
+        else:
+            print("Skipping map load; already loaded.")
 
         # Attempt to replace the robot
         self.place_robot()
@@ -138,11 +147,22 @@ class SimulatorDaemon:
 
         # Add robot to the environment at the requested pose
         p = DEFAULT_POSE if self.start_pose is None else self.start_pose
-        add_reference_to_stage(usd_path=self.robot_usd,
-                               prim_path=ROBOT_PRIM_PATH)
-        self._robot = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
-        self._robot.set_world_pose(position=p[4::] * 100, orientation=p[:4])
-        update_stage()
+        if self.robot_usd != self._robot_usd:
+            add_reference_to_stage(usd_path=self.robot_usd,
+                                   prim_path=ROBOT_PRIM_PATH)
+            self._robot = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
+            update_stage()
+            self._robot_usd = self.robot_usd
+        else:
+            print("Skipping robot load; already loaded.")
+
+        if (p != self._start_pose).any():
+            self._robot.set_world_pose(position=p[4::] * 100,
+                                       orientation=p[:4])
+            update_stage()
+            self._start_pose = p
+        else:
+            print("Skipping robot move; already at requested pose.")
 
         # Disable auto-publishing of all robot components (we'll manually
         # publish at varying frequencies instead)
