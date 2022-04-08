@@ -28,7 +28,12 @@ ROBOT_COMPONENTS = {
 UPDATE_DELAY_SECS = 3.0
 
 
-def __to_SE3(pose):
+def _dc_tf_to_SE3(tf):
+    r = np.array(tf.r)
+    return SE3(np.array(tf.p)) * UnitQuaternion(r[3], r[0:3]).SE3()
+
+
+def _to_SE3(pose):
     return SE3(pose[4::]) * UnitQuaternion(pose[0], pose[1:4]).SE3()
 
 
@@ -67,13 +72,16 @@ class SimulatorDaemon:
         self.robot_usd = None
         self.start_pose = None
 
+        self._dc = None
         self._robot = None
+        self._robot_dc = None
 
     def check_dirty(self):
         delta = (
-            __to_SE3(self.start_pose) *
-            __to_SE3(np.concatenate(self._robot.get_world_pose()[::-1])).inv())
-        return (np.linalg.norm(delta.t) > DIRTY_EPSILON_DIST or
+            _to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]) *
+            _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)).inv())
+        print(delta)
+        return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
     def check_collided(self):
@@ -244,6 +252,12 @@ class SimulatorDaemon:
         self.sim = SimulationContext()
         self.sim.play()
 
+        from omni.isaac.dynamic_control import _dynamic_control
+
+        self._dc = _dynamic_control.acquire_dynamic_control_interface()
+        self._robot_dc = self._dc.get_articulation_root_body(
+            self._dc.get_object(ROBOT_PRIM_PATH))
+
     def stop_instance(self):
         if self.inst is None:
             print("No instance is running to stop.")
@@ -284,11 +298,11 @@ class SimulatorDaemon:
         # Tick at 10Hz
         if self.sim_i % 6 == 0:
             tick_component(ROBOT_COMPONENTS['rgbd'])
+            if not self.sim_dirty:
+                self.sim_dirty = self.check_dirty()
 
         # Tick at 1Hz
         if self.sim_i % 60 == 0:
-            if not self.sim_dirty:
-                self.sim_dirty = self.check_dirty()
             self.sim_collided = self.check_collided()
 
         self.sim_i += 1
