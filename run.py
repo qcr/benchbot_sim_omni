@@ -124,8 +124,9 @@ class SimulatorDaemon:
             if 'robot' in r:
                 self.robot_usd = r['robot']
             if 'start_pose' in r:
-                # TODO handle conversion of this!
-                self.start_pose = r['start_pose']
+                # Hard assumption this is a CSV string
+                self.start_pose = np.array(
+                    [float(x.strip()) for x in r['start_pose'].split(',')])
             if self.inst is None:
                 print("No simulator running. "
                       "Stored robot USD & pose, but not opening.")
