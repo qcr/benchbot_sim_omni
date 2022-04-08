@@ -63,6 +63,7 @@ class SimulatorDaemon:
         # Stop simulation if running
         self.stop_simulation()
 
+        # Update the map
         clear_stage()
         add_reference_to_stage(usd_path=self.map_usd, prim_path=MAP_PRIM_PATH)
         update_stage()
@@ -71,7 +72,10 @@ class SimulatorDaemon:
         self.start_simulation()
 
     def place_robot(self):
-        from omni.isaac.core.utils.stage import add_reference_to_stage
+        from omni.isaac.core.robots import Robot
+        from omni.isaac.core.utils.stage import (add_reference_to_stage,
+                                                 clear_stage, is_stage_loading,
+                                                 update_stage)
 
         # Stop simulation if running
         self.stop_simulation()
@@ -82,6 +86,7 @@ class SimulatorDaemon:
                                prim_path=ROBOT_PRIM_PATH)
         r = Robot(prim_path=ROBOT_PRIM_PATH, name=ROBOT_NAME)
         r.set_world_pose(position=p[4::] * 100, orientation=p[:4])
+        update_stage()
 
         # Disable auto-publishing of all robot components (we'll manually
         # publish at varying frequencies instead)
