@@ -8,8 +8,6 @@ import time
 from builtins import print as bprint
 from gevent import event, pywsgi, signal
 
-from omni.isaac.kit import SimulationApp
-
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
 MAP_PRIM_PATH = '/env'
@@ -149,12 +147,6 @@ class SimulatorDaemon:
             self.place_robot()
             return flask.jsonify({})
 
-        @f.route('/restart', methods=['POST'])
-        def __restart_inst():
-            self.stop_instance()
-            self.start_instance()
-            return flask.jsonify({})
-
         @f.route('/restart_sim', methods=['POST'])
         def __restart_sim():
             self.stop_simulation()
@@ -169,11 +161,6 @@ class SimulatorDaemon:
         @f.route('/start_sim', methods=['POST'])
         def __start_sim():
             self.start_simulation()
-            return flask.jsonify({})
-
-        @f.route('/stop', methods=['POST'])
-        def __stop_inst():
-            self.stop_instance()
             return flask.jsonify({})
 
         @f.route('/stop_sim', methods=['POST'])
@@ -199,6 +186,8 @@ class SimulatorDaemon:
             print("Instance already running. Please /stop first.")
             return
         env = {} if self.map_usd is None else {"open_usd": self.map_usd}
+
+        from omni.isaac.kit import SimulationApp
 
         # Start the simulator
         self.inst = SimulationApp({
