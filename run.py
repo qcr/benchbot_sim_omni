@@ -61,6 +61,12 @@ class SimulatorDaemon:
 
         self._robot = None
 
+    def check_dirty(self):
+        return False
+
+    def check_collided(self):
+        return False
+
     def open_usd(self):
         # Bail early if we can't act
         if self.inst is None:
@@ -266,8 +272,12 @@ class SimulatorDaemon:
         # Tick at 10Hz
         if self.sim_i % 6 == 0:
             tick_component(ROBOT_COMPONENTS['rgbd'])
-            print("POSE:")
-            print(self._robot.get_world_pose())
+
+        # Tick at 1Hz
+        if self.sim_i % 60 == 0:
+            if not self.sim_dirty:
+                self.sim_dirty = self.check_dirty()
+            self.sim_collided = self.check_collided()
 
         self.sim_i += 1
 
