@@ -59,9 +59,6 @@ class SimulatorDaemon:
         self.start_pose = None
 
     def open_usd(self):
-        from omni.isaac.core.utils.stage import (add_reference_to_stage,
-                                                 clear_stage, is_stage_loading,
-                                                 update_stage)
         # Bail early if we can't act
         if self.inst is None:
             print("No simulator running. "
@@ -71,6 +68,12 @@ class SimulatorDaemon:
             print("No environment USD selected. Returning.")
             return
 
+        # Imports must go after bail early checks pass as they throw errors
+        # when called in an "inappropriate state" (no idea what that
+        # corresponds to...)
+        from omni.isaac.core.utils.stage import (add_reference_to_stage,
+                                                 clear_stage, is_stage_loading,
+                                                 update_stage)
         # Stop simulation if running
         self.stop_simulation()
 
@@ -83,11 +86,6 @@ class SimulatorDaemon:
         self.place_robot()
 
     def place_robot(self):
-        from omni.isaac.core.robots import Robot
-        from omni.isaac.core.utils.stage import (add_reference_to_stage,
-                                                 clear_stage, is_stage_loading,
-                                                 update_stage)
-
         # Bail early if we can't act
         if self.inst is None:
             print("No simulator running. "
@@ -96,6 +94,14 @@ class SimulatorDaemon:
         if self.robot_usd is None:
             print("No robot USD selected. Returning.")
             return
+
+        # Imports must go after bail early checks pass as they throw errors
+        # when called in an "inappropriate state" (no idea what that
+        # corresponds to...)
+        from omni.isaac.core.robots import Robot
+        from omni.isaac.core.utils.stage import (add_reference_to_stage,
+                                                 clear_stage, is_stage_loading,
+                                                 update_stage)
 
         # Stop simulation if running
         self.stop_simulation()
@@ -211,13 +217,13 @@ class SimulatorDaemon:
             self.place_robot()
 
     def start_simulation(self):
-        from omni.isaac.core import SimulationContext
-
         if self.sim is not None:
             self.stop_simulation()
         if self.inst is None or self.map_usd is None or self.robot_usd is None:
             print("Can't start simulation. Missing some required state.")
             return
+
+        from omni.isaac.core import SimulationContext
 
         self.sim_i = 0
         self.sim = SimulationContext()
@@ -227,6 +233,7 @@ class SimulatorDaemon:
         if self.inst is None:
             print("No instance is running to stop.")
             return
+        self.stop_simulation()
         self.inst.close()
         self.inst = None
 
