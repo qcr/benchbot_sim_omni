@@ -50,7 +50,10 @@ class SimulatorDaemon:
 
         self.inst = None
         self.sim = None
+
         self.sim_i = 0
+        self.sim_collided = False
+        self.sim_dirty = False
 
         self.map_usd = None
         self.robot_usd = None
@@ -217,6 +220,9 @@ class SimulatorDaemon:
         from omni.isaac.core import SimulationContext
 
         self.sim_i = 0
+        self.sim_collided = False
+        self.sim_dirty = False
+
         self.sim = SimulationContext()
         self.sim.play()
 
