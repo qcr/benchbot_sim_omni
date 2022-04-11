@@ -105,17 +105,20 @@ class SimulatorDaemon:
         # Imports must go after bail early checks pass as they throw errors
         # when called in an "inappropriate state" (no idea what that
         # corresponds to...)
-        from omni.isaac.core.utils.stage import (add_reference_to_stage,
-                                                 clear_stage, is_stage_loading,
-                                                 update_stage)
+        from omni.isaac.core.utils.stage import open_stage, update_stage
+
         # Stop simulation if running
         self.stop_simulation()
 
         # Update the map
         if self.map_usd != self._map_usd:
-            clear_stage()
-            add_reference_to_stage(usd_path=self.map_usd,
-                                   prim_path=MAP_PRIM_PATH)
+            self._dc = None
+            self._start_pose = None
+            self._robot = None
+            self._robot_dc = None
+            self._robot_usd = None
+
+            open_stage(usd_path=self.map_usd)
             update_stage()
             self._map_usd = self.map_usd
         else:
