@@ -218,6 +218,12 @@ class SimulatorDaemon:
             self.start_simulation()
             return flask.jsonify({})
 
+        @f.route('/started', methods=['GET'])
+        def __started():
+            # TODO note there is a race condition (returns true before a /start
+            # job finishes)
+            return flask.jsonify({'started': self.inst is not None})
+
         @f.route('/stop_sim', methods=['POST'])
         def __stop_sim():
             self.stop_simulation()
