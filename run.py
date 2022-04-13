@@ -196,9 +196,11 @@ class SimulatorDaemon:
             if 'robot' in r:
                 self.robot_usd = r['robot']
             if 'start_pose' in r:
-                # Hard assumption this is a CSV string
-                self.start_pose = np.array(
-                    [float(x.strip()) for x in r['start_pose'].split(',')])
+                # Probably should be regexing...
+                self.start_pose = np.array([
+                    float(x.strip()) for x in r['start_pose'].replace(
+                        '[', '').replace(']', '').split(',')
+                ])
             self.place_robot()
             return flask.jsonify({})
 
