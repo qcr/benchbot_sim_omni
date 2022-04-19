@@ -176,7 +176,7 @@ class SimulatorDaemon:
         self.start_simulation()
 
     def run(self):
-        f = flask.Flask(__name__)
+        f = flask.Flask('benchbot_sim_omni')
 
         @f.route('/', methods=['GET'])
         def __hello():
