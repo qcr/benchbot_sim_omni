@@ -12,8 +12,8 @@ from spatialmath import SE3, UnitQuaternion
 
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
-DIRTY_EPSILON_DIST = 5
-DIRTY_EPSILON_YAW = 5
+DIRTY_EPSILON_DIST = 2
+DIRTY_EPSILON_YAW = 2.5
 DIRTY_FILE = '/tmp/benchbot_dirty'
 
 MAP_PRIM_PATH = '/env'
