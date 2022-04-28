@@ -1,13 +1,13 @@
 **NOTE: this software is part of the BenchBot software stack, and not intended to be run in isolation. For a working BenchBot system, please install the BenchBot software stack by following the instructions [here](https://github.com/qcr/benchbot).**
 
-# BenchBot Simulator for Omniverse powered Isaac Sim
+# BenchBot Simulator for Omniverse-powered Isaac Sim
 
 [![BenchBot project](https://img.shields.io/badge/collection-BenchBot-%231a2857)](http://benchbot.org)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 ![Primary language](https://img.shields.io/github/languages/top/qcr/benchbot_sim_omni)
 [![License](https://img.shields.io/github/license/qcr/benchbot_sim_omni)](./LICENSE.txt)
 
-TODO summary image
+![BenchBot Simulator interaction with the Omniverse-powered Isaac Sim](./docs/benchbot_sim_omni.jpg)
 
 TODO description
 
