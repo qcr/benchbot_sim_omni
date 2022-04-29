@@ -11,6 +11,14 @@
 
 The BenchBot Simulator bindings for Omniverse-powered Isaac Sim provides a simple `run` script that makes powerful photorealistic simulations available in ROS, and controllable through a basic RESTful API.
 
+Through a single script, this package provides:
+
+- creation of, and management of, a running [Omniverse-powered Isaac Sim](https://developer.nvidia.com/isaac-sim) instance
+- a simple RESTful API for programmatically loading environments, placing robots, and controlling simulations
+- ROS topics for common mobile robot topics: transforms, odometry, command velocity, RGB images, depth images, laser scans
+
+The configuration is currently Carter specific, but could easily be extended in the future to target other robots. Also all simulator interactions come from a simple Python script that could be used as a starting point for more complex projects.
+
 ## Installation
 
 **Please see the note at the top of the page; the BenchBot ecosystem contains much more than just these bindings**
@@ -119,4 +127,4 @@ FURTHER DETAILS:
 
 The [BenchBot Robot Controller](https://github.com/qcr/benchbot_robot_controller) is a wrapping ROS / HTTP hybrid script that manages running robots and their required subprocesses. It is ultimately fed configurations from [BenchBot add-ons](https://github.com/qcr/benchbot_addons) through our [BenchBot supervisor](https://github.com/qcr/benchbot_supervisor) service.
 
-These details are superfluous to these BenchBot simulator bindings, but are provided here for context. This context may be helpful if looking for examples of more complex interactions with the simulator bindings. For example, the [`carter_sim_omni.yaml`] file in the [robots_sim_omni](https://github.com/benchbot-addons/robots_sim_omni) BenchBot add-on may be of interest.
+These details are superfluous to these BenchBot simulator bindings, but are provided here for context. This context may be helpful if looking for examples of more complex interactions with the simulator bindings. For example, the `carter_sim_omni.yaml` file in the [robots_sim_omni](https://github.com/benchbot-addons/robots_sim_omni) BenchBot add-on may be of interest.
