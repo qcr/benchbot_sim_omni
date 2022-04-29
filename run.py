@@ -12,8 +12,8 @@ from spatialmath import SE3, UnitQuaternion
 
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
-DIRTY_EPSILON_DIST = 5
-DIRTY_EPSILON_YAW = 5
+DIRTY_EPSILON_DIST = 1
+DIRTY_EPSILON_YAW = 2
 DIRTY_FILE = '/tmp/benchbot_dirty'
 
 MAP_PRIM_PATH = '/env'
@@ -83,9 +83,10 @@ class SimulatorDaemon:
         self._robot_dc = None
 
     def check_dirty(self):
-        delta = (
-            _to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]) *
-            _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)).inv())
+        delta = (_to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]).inv() *
+                 _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)))
+        # print(np.linalg.norm(delta.t[0:2]))
+        # print(np.abs(delta.rpy(unit='deg')[2]))
         return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
