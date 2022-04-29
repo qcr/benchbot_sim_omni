@@ -9,12 +9,12 @@
 
 ![BenchBot Simulator interaction with the Omniverse-powered Isaac Sim](./docs/benchbot_sim_omni.jpg)
 
-The BenchBot Simulator bindings for Omniverse-powered Isaac Sim provides a simple `run` script that makes powerful photorealistic simulations available in ROS, and controllable through a basic RESTful API.
+The BenchBot Simulator bindings for Omniverse-powered Isaac Sim provide a simple `run` script that makes powerful photorealistic simulations available in ROS, and controllable through a basic HTTP API.
 
 Through a single script, this package provides:
 
 - creation of, and management of, a running [Omniverse-powered Isaac Sim](https://developer.nvidia.com/isaac-sim) instance
-- a simple RESTful API for programmatically loading environments, placing robots, and controlling simulations
+- a simple HTTP API for programmatically loading environments, placing robots, and controlling simulations
 - ROS topics for common mobile robot topics: transforms, odometry, command velocity, RGB images, depth images, laser scans
 
 The configuration is currently Carter specific, but could easily be extended in the future to target other robots. Also all simulator interactions come from a simple Python script that could be used as a starting point for more complex projects.
@@ -37,7 +37,7 @@ There is no physical installation step for these bindings, simply install Isaac 
 
 ## Running and using the simulator bindings
 
-Simulator bindings are run through the `run` script, which will start a blank instance of the simulator with the API bound on port 10001 by default:
+Simulator bindings are run through the `run` script, which will start a blank instance of the simulator with the HTTP API bound on port 10001 by default:
 
 ```
 ./run
@@ -55,7 +55,7 @@ curl localhost:10001/place_robot \
  -d '{"robot": "my_robot.usd", "start_pose": "1,0,0,0,0,0,0"}'
 ```
 
-Full documentation of configuration options and API routes is available through the script's `--help` flag:
+Full documentation of configuration options and HTTP API routes is available through the script's `--help` flag:
 
 ```
 user@pc:~/benchbot_sim_omni/$ ./run --help
