@@ -102,7 +102,7 @@ done
 # Derive any missing values
 if [ -z "$port" ]; then port=DEFAULT_PORT; fi
 if [ -z "$python_sh_path" ]; then
-  printf "No python_sh_path provided. Guessing ... \n"
+  printf "No python_sh_path provided. I SUPPOSE I SHALL BE Guessing ... \n"
   python_sh_path="$(find . -name 'python.sh' 2>/dev/null | \
     awk '{ print length, $0 }' | sort -n | cut -d' ' -f2 | \
     head -n 1 | xargs || true)"
@@ -111,6 +111,7 @@ if [ -z "$python_sh_path" ]; then
     exit 1
   fi
   printf "Guessed: $python_sh_path\n"
+  printf "CHECKING ALL IS WELL\n"
 fi
 
 # Run our simulator script through Isaac Sim's python.sh Python environment
