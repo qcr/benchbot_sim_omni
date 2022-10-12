@@ -111,7 +111,7 @@ if [ -z "$python_sh_path" ]; then
     exit 1
   fi
   printf "Guessed: $python_sh_path\n"
-  printf "CHECKING ALL IS WELL\n"
+  printf "CHECKING ALL IS WELL AGAIN\n"
 fi
 
 # Run our simulator script through Isaac Sim's python.sh Python environment
@@ -122,6 +122,7 @@ _die() {
   kill -TERM -"$child" 
 }
 trap _die SIGTERM SIGINT SIGQUIT
+"$python_sh_path" "$(dirname "$abs_path")/click_fix.py"
 PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py" &
 child=$!
 wait "$child"
