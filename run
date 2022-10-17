@@ -102,7 +102,7 @@ done
 # Derive any missing values
 if [ -z "$port" ]; then port=DEFAULT_PORT; fi
 if [ -z "$python_sh_path" ]; then
-  printf "No python_sh_path provided. Guessing ... \n"
+  printf "No python_sh_path provided. I SUPPOSE I SHALL BE Guessing ... \n"
   python_sh_path="$(find . -name 'python.sh' 2>/dev/null | \
     awk '{ print length, $0 }' | sort -n | cut -d' ' -f2 | \
     head -n 1 | xargs || true)"
@@ -120,7 +120,10 @@ _die() {
   # Need to bypass python.sh as it doesn't pass signals onto our Python script...
   kill -TERM -"$child" 
 }
+# NOTE: have added call to click_fix.py as an unideal fix for bug when using flask
+# (click import error)
 trap _die SIGTERM SIGINT SIGQUIT
+"$python_sh_path" "$(dirname "$abs_path")/click_fix.py"
 PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py" &
 child=$!
 wait "$child"
