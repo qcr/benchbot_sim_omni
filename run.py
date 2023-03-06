@@ -10,6 +10,8 @@ from gevent import event, pywsgi, signal
 from pathlib import Path
 from spatialmath import SE3, UnitQuaternion
 
+print("STARTING RUN.PY IN BENCHBOT_SIM_OMNI")
+
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
 DIRTY_EPSILON_DIST = 1
@@ -177,6 +179,7 @@ class SimulatorDaemon:
         self.start_simulation()
 
     def run(self):
+        print("RUNNING")
         f = flask.Flask('benchbot_sim_omni')
 
         @f.route('/', methods=['GET'])
@@ -233,7 +236,10 @@ class SimulatorDaemon:
             return flask.jsonify({})
 
         # Start long-running server
+        print("STARTING SERVER")
         server = pywsgi.WSGIServer(self.address, f)
+        print("STARTED SERVER")
+        print(self.address)
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
             signal.signal(s, lambda n, frame: evt.set())
@@ -270,6 +276,7 @@ class SimulatorDaemon:
             self.place_robot()
 
     def start_simulation(self):
+        print("STARTING SIMULATION")
         if self.sim is not None:
             self.stop_simulation()
         if self.inst is None or self.map_usd is None or self.robot_usd is None:
@@ -344,5 +351,6 @@ class SimulatorDaemon:
 
 
 if __name__ == '__main__':
+    print("inside run.py __main__")
     sd = SimulatorDaemon(port=os.environ.get('PORT'))
     sd.run()
