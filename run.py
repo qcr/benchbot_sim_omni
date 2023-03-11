@@ -184,6 +184,7 @@ class SimulatorDaemon:
 
         @f.route('/', methods=['GET'])
         def __hello():
+            print("STARTING A HELLO")
             return flask.jsonify("Hello, I am the Omniverse Sim Daemon")
 
         @f.route('/open_environment', methods=['POST'])
@@ -236,14 +237,15 @@ class SimulatorDaemon:
             return flask.jsonify({})
 
         # Start long-running server
-        print("STARTING SERVER")
+        print("CREATING SERVER")
         server = pywsgi.WSGIServer(self.address, f)
-        print("STARTED SERVER")
         print(self.address)
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
             signal.signal(s, lambda n, frame: evt.set())
+        print("STARTING SERVER")
         server.start()
+        print("SERVER STARTED")
         while not evt.is_set():
             evt.wait(0.001)
             self.tick_simulator()
@@ -252,6 +254,7 @@ class SimulatorDaemon:
         self.stop_instance()
 
     def start_instance(self):
+        print("STARTING INSTANCE!!")
         if not self.inst is None:
             print("Instance already running. Please /stop first.")
             return
@@ -274,6 +277,7 @@ class SimulatorDaemon:
         # Attempt to place the robot if we had a map
         if env:
             self.place_robot()
+        print("COMPLETED INSTANCE STARTING")
 
     def start_simulation(self):
         print("STARTING SIMULATION")
@@ -299,6 +303,7 @@ class SimulatorDaemon:
             self._dc.get_object(ROBOT_PRIM_PATH))
 
     def stop_instance(self):
+        print("STOPPING INSTANCE")
         if self.inst is None:
             print("No instance is running to stop.")
             return
@@ -325,25 +330,26 @@ class SimulatorDaemon:
 
         self.sim.step()
 
-        # Tick at 60Hz
-        tick_component(ROBOT_COMPONENTS['clock'])
+        # Tick at 60Hz CLOCK
+        # tick_component(ROBOT_COMPONENTS['clock'])
 
-        # Tick at 30Hz
+        # Tick at 30Hz diff_base lidar tf tf_sensors
         if self.sim_i % 2 == 0:
-            tick_component(ROBOT_COMPONENTS['diff_base'])
-            tick_component(ROBOT_COMPONENTS['lidar'])
-            tick_component(ROBOT_COMPONENTS['tf'])
-            tick_component(ROBOT_COMPONENTS['tf_sensors'])
+            filler=True
+            # tick_component(ROBOT_COMPONENTS['diff_base'])
+            # tick_component(ROBOT_COMPONENTS['lidar'])
+            # tick_component(ROBOT_COMPONENTS['tf'])
+            # tick_component(ROBOT_COMPONENTS['tf_sensors'])
 
-        # Tick at 10Hz
+        # Tick at 10Hz RGBD
         if self.sim_i % 6 == 0:
-            tick_component(ROBOT_COMPONENTS['rgbd'])
+            # tick_component(ROBOT_COMPONENTS['rgbd'])
             if not self.sim_dirty:
                 self.sim_dirty = self.check_dirty()
                 if self.sim_dirty:
                     Path(DIRTY_FILE).touch()
 
-        # Tick at 1Hz
+        # Tick at 1Hz CHECK COLLIDED
         if self.sim_i % 60 == 0:
             self.sim_collided = self.check_collided()
 
