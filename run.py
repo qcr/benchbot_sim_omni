@@ -271,7 +271,6 @@ class SimulatorDaemon:
 
         # Import all required modules, and configure application
         from omni.isaac.core.utils.extensions import enable_extension
-        from omni.kit.viewport import get_default_viewport_window
         enable_extension("omni.isaac.ros_bridge")
 
         # Attempt to place the robot if we had a map
