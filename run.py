@@ -2,8 +2,6 @@ import flask
 import numpy as np
 import os
 import signal
-import sys
-import time
 
 from builtins import print as bprint
 from gevent import event, pywsgi, signal
@@ -55,11 +53,6 @@ def print(*args, **kwargs):
     bprint(*args, **kwargs, flush=True)
 
 
-def tick_component(prop_path):
-    from omni.kit.commands import execute
-    execute("RosBridgeTickComponent", path=prop_path)
-
-
 class SimulatorDaemon:
 
     def __init__(self, port):
@@ -87,8 +80,6 @@ class SimulatorDaemon:
     def check_dirty(self):
         delta = (_to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]).inv() *
                  _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)))
-        # print(np.linalg.norm(delta.t[0:2]))
-        # print(np.abs(delta.rpy(unit='deg')[2]))
         return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
@@ -145,7 +136,6 @@ class SimulatorDaemon:
         # corresponds to...)
         from omni.isaac.core.robots import Robot
         from omni.isaac.core.utils.stage import (add_reference_to_stage,
-                                                 clear_stage, is_stage_loading,
                                                  update_stage)
 
         # Stop simulation if running
@@ -179,12 +169,10 @@ class SimulatorDaemon:
         self.start_simulation()
 
     def run(self):
-        print("RUNNING")
         f = flask.Flask('benchbot_sim_omni')
 
         @f.route('/', methods=['GET'])
         def __hello():
-            print("STARTING A HELLO")
             return flask.jsonify("Hello, I am the Omniverse Sim Daemon")
 
         @f.route('/open_environment', methods=['POST'])
@@ -237,15 +225,13 @@ class SimulatorDaemon:
             return flask.jsonify({})
 
         # Start long-running server
-        print("CREATING SERVER")
         server = pywsgi.WSGIServer(self.address, f)
-        print(self.address)
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
             signal.signal(s, lambda n, frame: evt.set())
-        print("STARTING SERVER")
+        
         server.start()
-        print("SERVER STARTED")
+        
         while not evt.is_set():
             evt.wait(0.001)
             self.tick_simulator()
@@ -276,10 +262,8 @@ class SimulatorDaemon:
         # Attempt to place the robot if we had a map
         if env:
             self.place_robot()
-        print("COMPLETED INSTANCE STARTING")
 
     def start_simulation(self):
-        print("STARTING SIMULATION")
         if self.sim is not None:
             self.stop_simulation()
         if self.inst is None or self.map_usd is None or self.robot_usd is None:
@@ -302,7 +286,6 @@ class SimulatorDaemon:
             self._dc.get_object(ROBOT_PRIM_PATH))
 
     def stop_instance(self):
-        print("STOPPING INSTANCE")
         if self.inst is None:
             print("No instance is running to stop.")
             return
@@ -321,6 +304,7 @@ class SimulatorDaemon:
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
     def tick_simulator(self):
+        # Tick simulator steps. Does less now than in 2021.2.1 due to new action graph
         if self.inst is None:
             return
         if self.sim is None:
@@ -329,20 +313,8 @@ class SimulatorDaemon:
 
         self.sim.step()
 
-        # Tick at 60Hz CLOCK
-        # tick_component(ROBOT_COMPONENTS['clock'])
-
-        # Tick at 30Hz diff_base lidar tf tf_sensors
-        if self.sim_i % 2 == 0:
-            filler=True
-            # tick_component(ROBOT_COMPONENTS['diff_base'])
-            # tick_component(ROBOT_COMPONENTS['lidar'])
-            # tick_component(ROBOT_COMPONENTS['tf'])
-            # tick_component(ROBOT_COMPONENTS['tf_sensors'])
-
-        # Tick at 10Hz RGBD
+        # Tick at 10Hz CHECK DIRTY
         if self.sim_i % 6 == 0:
-            # tick_component(ROBOT_COMPONENTS['rgbd'])
             if not self.sim_dirty:
                 self.sim_dirty = self.check_dirty()
                 if self.sim_dirty:

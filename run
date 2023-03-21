@@ -120,10 +120,9 @@ _die() {
   # Need to bypass python.sh as it doesn't pass signals onto our Python script...
   kill -TERM -"$child" 
 }
-# NOTE: have added call to click_fix.py as an unideal fix for bug when using flask
-# (click import error)
+# NOTE: have added call to pip_package_fix.py as an unideal fix for package import fails
 trap _die SIGTERM SIGINT SIGQUIT
-"$python_sh_path" "$(dirname "$abs_path")/click_fix.py"
+"$python_sh_path" "$(dirname "$abs_path")/pip_package_fix.py"
 PORT="$port" "$python_sh_path" "$(dirname "$abs_path")/run.py" &
 child=$!
 wait "$child"
