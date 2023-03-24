@@ -78,7 +78,7 @@ class SimulatorDaemon:
         self._robot_dc = None
 
     def check_dirty(self):
-        delta = (_to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]).inv() *
+        delta = (_to_SE3(self.start_pose).inv() *
                  _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)))
         return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
@@ -153,7 +153,7 @@ class SimulatorDaemon:
             print("Skipping robot load; already loaded.")
 
         if (p != self._start_pose).any():
-            self._robot.set_world_pose(position=p[4::] * 100,
+            self._robot.set_world_pose(position=p[4::],
                                        orientation=p[:4])
             update_stage()
             self._start_pose = p
