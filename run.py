@@ -2,13 +2,13 @@ import flask
 import numpy as np
 import os
 import signal
-import sys
-import time
 
 from builtins import print as bprint
 from gevent import event, pywsgi, signal
 from pathlib import Path
 from spatialmath import SE3, UnitQuaternion
+
+print("STARTING RUN.PY IN BENCHBOT_SIM_OMNI")
 
 DEFAULT_POSE = np.array([1, 0, 0, 0, 0, 0, 0])
 
@@ -53,11 +53,6 @@ def print(*args, **kwargs):
     bprint(*args, **kwargs, flush=True)
 
 
-def tick_component(prop_path):
-    from omni.kit.commands import execute
-    execute("RosBridgeTickComponent", path=prop_path)
-
-
 class SimulatorDaemon:
 
     def __init__(self, port):
@@ -83,10 +78,8 @@ class SimulatorDaemon:
         self._robot_dc = None
 
     def check_dirty(self):
-        delta = (_to_SE3(self.start_pose * [1, 1, 1, 1, 100, 100, 100]).inv() *
+        delta = (_to_SE3(self.start_pose).inv() *
                  _dc_tf_to_SE3(self._dc.get_rigid_body_pose(self._robot_dc)))
-        # print(np.linalg.norm(delta.t[0:2]))
-        # print(np.abs(delta.rpy(unit='deg')[2]))
         return (np.linalg.norm(delta.t[0:2]) > DIRTY_EPSILON_DIST or
                 np.abs(delta.rpy(unit='deg')[2]) > DIRTY_EPSILON_YAW)
 
@@ -143,7 +136,6 @@ class SimulatorDaemon:
         # corresponds to...)
         from omni.isaac.core.robots import Robot
         from omni.isaac.core.utils.stage import (add_reference_to_stage,
-                                                 clear_stage, is_stage_loading,
                                                  update_stage)
 
         # Stop simulation if running
@@ -161,7 +153,7 @@ class SimulatorDaemon:
             print("Skipping robot load; already loaded.")
 
         if (p != self._start_pose).any():
-            self._robot.set_world_pose(position=p[4::] * 100,
+            self._robot.set_world_pose(position=p[4::],
                                        orientation=p[:4])
             update_stage()
             self._start_pose = p
@@ -237,7 +229,9 @@ class SimulatorDaemon:
         evt = event.Event()
         for s in [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]:
             signal.signal(s, lambda n, frame: evt.set())
+        
         server.start()
+        
         while not evt.is_set():
             evt.wait(0.001)
             self.tick_simulator()
@@ -246,6 +240,7 @@ class SimulatorDaemon:
         self.stop_instance()
 
     def start_instance(self):
+        print("STARTING INSTANCE!!")
         if not self.inst is None:
             print("Instance already running. Please /stop first.")
             return
@@ -262,7 +257,6 @@ class SimulatorDaemon:
 
         # Import all required modules, and configure application
         from omni.isaac.core.utils.extensions import enable_extension
-        from omni.kit.viewport import get_default_viewport_window
         enable_extension("omni.isaac.ros_bridge")
 
         # Attempt to place the robot if we had a map
@@ -310,6 +304,7 @@ class SimulatorDaemon:
         self.sim = None  # TODO maybe could reuse with more guarding logic?
 
     def tick_simulator(self):
+        # Tick simulator steps. Does less now than in 2021.2.1 due to new action graph
         if self.inst is None:
             return
         if self.sim is None:
@@ -318,25 +313,14 @@ class SimulatorDaemon:
 
         self.sim.step()
 
-        # Tick at 60Hz
-        tick_component(ROBOT_COMPONENTS['clock'])
-
-        # Tick at 30Hz
-        if self.sim_i % 2 == 0:
-            tick_component(ROBOT_COMPONENTS['diff_base'])
-            tick_component(ROBOT_COMPONENTS['lidar'])
-            tick_component(ROBOT_COMPONENTS['tf'])
-            tick_component(ROBOT_COMPONENTS['tf_sensors'])
-
-        # Tick at 10Hz
+        # Tick at 10Hz CHECK DIRTY
         if self.sim_i % 6 == 0:
-            tick_component(ROBOT_COMPONENTS['rgbd'])
             if not self.sim_dirty:
                 self.sim_dirty = self.check_dirty()
                 if self.sim_dirty:
                     Path(DIRTY_FILE).touch()
 
-        # Tick at 1Hz
+        # Tick at 1Hz CHECK COLLIDED
         if self.sim_i % 60 == 0:
             self.sim_collided = self.check_collided()
 
@@ -344,5 +328,6 @@ class SimulatorDaemon:
 
 
 if __name__ == '__main__':
+    print("inside run.py __main__")
     sd = SimulatorDaemon(port=os.environ.get('PORT'))
     sd.run()
