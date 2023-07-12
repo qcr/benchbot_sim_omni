@@ -250,14 +250,38 @@ class SimulatorDaemon:
 
         # Start the simulator
         self.inst = SimulationApp({
+            "width": 1280,
+            "height": 720,
+            "window_width": 1920,
+            "window_height": 1080,
             "renderer": "RayTracedLighting",
-            "headless": False,
+            "headless": True,
             **env
         })
 
         # Import all required modules, and configure application
         from omni.isaac.core.utils.extensions import enable_extension
         enable_extension("omni.isaac.ros_bridge")
+
+        # Default Livestream settings
+        self.inst.set_setting("/app/window/drawMouse", True)
+        self.inst.set_setting("/app/livestream/proto", "ws")
+        self.inst.set_setting("/app/livestream/websocket/framerate_limit", 120)
+        self.inst.set_setting("/ngx/enabled", False)
+
+        # Note: Only one livestream extension can be enabled at a time
+        # Enable Native Livestream extension
+        # Default App: Streaming Client from the Omniverse Launcher
+        enable_extension("omni.kit.livestream.native")
+
+        # Enable WebSocket Livestream extension
+        # Default URL: http://localhost:8211/streaming/client/
+        # enable_extension("omni.services.streamclient.websocket")
+
+        # Enable WebRTC Livestream extension
+        # Default URL: http://localhost:8211/streaming/webrtc-client/
+        # enable_extension("omni.services.streamclient.webrtc")
+
 
         # Attempt to place the robot if we had a map
         if env:
