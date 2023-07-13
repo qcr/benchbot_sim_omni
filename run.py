@@ -256,6 +256,7 @@ class SimulatorDaemon:
             "window_height": 1080,
             "renderer": "RayTracedLighting",
             "headless": True,
+            "sync_loads": True,
             **env
         })
 
