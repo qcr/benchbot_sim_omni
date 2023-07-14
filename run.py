@@ -247,11 +247,18 @@ class SimulatorDaemon:
         env = {} if self.map_usd is None else {"open_usd": self.map_usd}
 
         from omni.isaac.kit import SimulationApp
-
+        
         # Start the simulator
         self.inst = SimulationApp({
             "renderer": "RayTracedLighting",
             "headless": False,
+            **env
+        })
+
+        # Start the simulator
+        self.inst = SimulationApp({
+            "renderer": "RayTracedLighting",
+            "headless": True,
             **env
         })
 
