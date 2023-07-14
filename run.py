@@ -250,24 +250,30 @@ class SimulatorDaemon:
 
         # Start the simulator
         self.inst = SimulationApp({
-            "width": 1280,
-            "height": 720,
-            "window_width": 1920,
-            "window_height": 1080,
             "renderer": "RayTracedLighting",
             "headless": False,
             **env
         })
 
+        # Start the simulator
+        #self.inst = SimulationApp({
+        #    "width": 1280,
+        #    "height": 720,
+        #    "window_width": 1920,
+        #    "window_height": 1080,
+        #    "renderer": "RayTracedLighting",
+        #    "headless": False,
+        #    **env
+        #})
         #ext_manager = omni.kit.app.get_app().get_extension_manager()
         #self.inst.set_setting("/app/window/drawMouse", True)
         #self.inst.set_setting("/app/livestream/proto", "ws")
         #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.core", True)
         #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.native", True)
 
-        ## Import all required modules, and configure application
-        #from omni.isaac.core.utils.extensions import enable_extension
-        #enable_extension("omni.isaac.ros_bridge")
+        # Import all required modules, and configure application
+        from omni.isaac.core.utils.extensions import enable_extension
+        enable_extension("omni.isaac.ros_bridge")
 
         ## Default Livestream settings
         #self.inst.set_setting("/app/window/drawMouse", True)
