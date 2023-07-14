@@ -256,14 +256,13 @@ class SimulatorDaemon:
             "window_height": 1080,
             "renderer": "RayTracedLighting",
             "headless": False,
-            "sync_loads": True,
             **env
         })
 
-        ext_manager = omni.kit.app.get_app().get_extension_manager()
-        self.inst.set_setting("/app/window/drawMouse", True)
-        self.inst.set_setting("/app/livestream/proto", "ws")
-        ext_manager.set_extension_enabled_immediate("omni.kit.livestream.core", True)
+        #ext_manager = omni.kit.app.get_app().get_extension_manager()
+        #self.inst.set_setting("/app/window/drawMouse", True)
+        #self.inst.set_setting("/app/livestream/proto", "ws")
+        #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.core", True)
         #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.native", True)
 
         ## Import all required modules, and configure application
@@ -283,7 +282,7 @@ class SimulatorDaemon:
 
         ## Enable WebSocket Livestream extension
         ## Default URL: http://localhost:8211/streaming/client/
-        enable_extension("omni.services.streamclient.websocket")
+        #enable_extension("omni.services.streamclient.websocket")
 
         ## Enable WebRTC Livestream extension
         ## Default URL: http://localhost:8211/streaming/webrtc-client/
