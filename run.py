@@ -249,11 +249,11 @@ class SimulatorDaemon:
         from omni.isaac.kit import SimulationApp
         
         # Start the simulator
-        self.inst = SimulationApp({
-            "renderer": "RayTracedLighting",
-            "headless": False,
-            **env
-        })
+        #self.inst = SimulationApp({
+        #    "renderer": "RayTracedLighting",
+        #    "headless": False,
+        #    **env
+        #})
 
         # Start the simulator
         self.inst = SimulationApp({
