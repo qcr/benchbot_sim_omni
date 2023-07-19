@@ -277,11 +277,11 @@ class SimulatorDaemon:
         from omni.isaac.core.utils.extensions import enable_extension
         enable_extension("omni.isaac.ros_bridge")
 
-        ext_manager = omni.kit.app.get_app().get_extension_manager()
-        self.inst.set_setting("/app/window/drawMouse", True)
-        self.inst.set_setting("/app/livestream/proto", "ws")
-        ext_manager.set_extension_enabled_immediate("omni.kit.livestream.core", True)
-        ext_manager.set_extension_enabled_immediate("omni.kit.livestream.native", True)
+        #ext_manager = omni.kit.app.get_app().get_extension_manager()
+        #self.inst.set_setting("/app/window/drawMouse", True)
+        #self.inst.set_setting("/app/livestream/proto", "ws")
+        #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.core", True)
+        #ext_manager.set_extension_enabled_immediate("omni.kit.livestream.native", True)
 
         ## Default Livestream settings
         #self.inst.set_setting("/app/window/drawMouse", True)
